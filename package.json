@@ -10,7 +10,9 @@
   },
   "devDependencies": {},
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "watch": "watchify index.js -o static/bundle.js",
+    "build": "browserify index.js -o static/bundle.js"
   },
   "author": "",
   "license": "ISC"
