@@ -1,0 +1,11 @@
+#logs {
+    max-height: 300px;
+    height: 300px;
+    overflow: scroll;
+}
+
+#output {
+    max-height: 300px;
+    height: 300px;
+    overflow: scroll;
+}
