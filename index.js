@@ -12,14 +12,40 @@ var machine = new Machine({
         var node = document.createElement("p")
         node.innerText = text
         document.getElementById("logs").appendChild(node)
+    },
+    onMemoryChange: function(){
+        updateMemory(machine.memory)
     }
 
 })
 
 document.getElementById("load").addEventListener("click", function(e){
     machine.loadToRAM(document.getElementById("code").value)
+    console.log(machine.memory)
+    console.log(machine)
     machine.run()
 })
+
+function updateMemory(data) {
+    var mem = document.getElementById("memory")
+    mem.innerHTML = ""
+    for (let i = 0; i < 100; i++) {
+        var value = data[i];
+        if (value === undefined) value = "000"
+        var memLocation = document.createElement("div")
+        memLocation.className = "memoryItem"
+        var location = document.createElement("p")
+        location.innerText = i
+        location.className = "memoryLocation"
+        var memVal = document.createElement("p")
+        memVal.className = "memoryValue"
+        memVal.innerText = value
+        memLocation.appendChild(location)
+        memLocation.appendChild(memVal)
+        mem.appendChild(memLocation)
+    }
+
+}
 
 // var testInp = `
 //         INP

@@ -5,7 +5,7 @@
   "main": "index.js",
   "dependencies": {
     "browserify": "^17.0.0",
-    "lmc-simulator": "^1.0.4",
+    "lmc-simulator": "^1.2.1",
     "watchify": "^4.0.0"
   },
   "devDependencies": {},

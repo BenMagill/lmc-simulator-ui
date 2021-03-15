@@ -9,3 +9,21 @@
     height: 300px;
     overflow: scroll;
 }
+
+.memoryLocation {
+
+    padding: 0;
+    margin: 0;
+}
+
+.memoryValue {
+    
+    padding: 0;
+    margin: 0;
+}
+
+.memoryItem {
+    border: 1px black solid;
+    width: 30px;
+    display: inline-block;
+}

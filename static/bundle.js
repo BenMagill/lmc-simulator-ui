@@ -13,14 +13,40 @@ var machine = new Machine({
         var node = document.createElement("p")
         node.innerText = text
         document.getElementById("logs").appendChild(node)
+    },
+    onMemoryChange: function(){
+        updateMemory(machine.memory)
     }
 
 })
 
 document.getElementById("load").addEventListener("click", function(e){
     machine.loadToRAM(document.getElementById("code").value)
+    console.log(machine.memory)
+    console.log(machine)
     machine.run()
 })
+
+function updateMemory(data) {
+    var mem = document.getElementById("memory")
+    mem.innerHTML = ""
+    for (let i = 0; i < 100; i++) {
+        var value = data[i];
+        if (value === undefined) value = "000"
+        var memLocation = document.createElement("div")
+        memLocation.className = "memoryItem"
+        var location = document.createElement("p")
+        location.innerText = i
+        location.className = "memoryLocation"
+        var memVal = document.createElement("p")
+        memVal.className = "memoryValue"
+        memVal.innerText = value
+        memLocation.appendChild(location)
+        memLocation.appendChild(memVal)
+        mem.appendChild(memLocation)
+    }
+
+}
 
 // var testInp = `
 //         INP
@@ -118,15 +144,18 @@ var Machine = /** @class */ (function () {
             acc: {
                 value: 0,
                 set: function (inp) {
+                    _this.onRegisterChange({ register: "acc", value: inp });
                     _this.registers.acc.value = inp;
                 }
             },
             pc: {
                 value: 0,
                 set: function (inp) {
+                    _this.onRegisterChange({ register: "pc", value: inp });
                     _this.registers.pc.value = inp;
                 },
                 incrememnt: function () {
+                    _this.onRegisterChange({ register: "pc", value: _this.registers.pc.value + 1 });
                     _this.registers.pc.value = _this.registers.pc.value + 1;
                 }
             },
@@ -138,22 +167,26 @@ var Machine = /** @class */ (function () {
                     return _this.memory[_this.registers.mar.value];
                 },
                 storeInRAM: function () {
+                    _this.onMemoryChange();
                     // store the value of the mdr in the memory at values location
                     _this.memory[_this.registers.mar.value] = _this.registers.mdr.value;
                 },
                 set: function (inp) {
+                    _this.onRegisterChange({ register: "mar", value: inp });
                     _this.registers.mar.value = inp;
                 }
             },
             mdr: {
                 value: "",
                 set: function (inp) {
+                    _this.onRegisterChange({ register: "mdr", value: inp });
                     _this.registers.mdr.value = inp;
                 }
             },
             cir: {
                 value: "",
                 set: function (inp) {
+                    _this.onRegisterChange({ register: "cir", value: inp });
                     _this.registers.cir.value = inp;
                 },
                 decoded: {
@@ -167,20 +200,29 @@ var Machine = /** @class */ (function () {
         this.memory = ["000"];
         this.output = [];
         this.end = false;
+        this.error = false;
         this.onInput = options.onInput;
         this.onOutput = console.log;
         this.timeout = 500;
         this.log = function () { };
+        this.onRegisterChange = function () { };
+        this.onMemoryChange = function () { };
         if (options === null || options === void 0 ? void 0 : options.timeout)
             this.timeout = options.timeout;
         if (options === null || options === void 0 ? void 0 : options.onOutput)
             this.onOutput = options.onOutput;
         if (options === null || options === void 0 ? void 0 : options.logOutput)
             this.log = options.logOutput;
+        if (options === null || options === void 0 ? void 0 : options.onRegisterChange)
+            this.onRegisterChange = options.onRegisterChange;
+        if (options === null || options === void 0 ? void 0 : options.onMemoryChange)
+            this.onMemoryChange = options.onMemoryChange;
     }
     Machine.prototype.loadToRAM = function (code) {
         var _this = this;
         this.end = false;
+        this.error = false;
+        this.registers.pc.set(0);
         this.log("Compiling code");
         // Convert code to an array
         var codeA = code.split("\n");
@@ -206,8 +248,10 @@ var Machine = /** @class */ (function () {
         var labels = {};
         this.log("Finding labels");
         cleaned = cleaned.map(function (line, lineLocation) {
+            // Split instruction into parts
             var parts = line.split(" ");
             // console.log(parts)
+            // Find location of INSTRUCTION
             var index = null;
             for (var i = 0; i < parts.length; i++) {
                 var part = parts[i];
@@ -223,8 +267,20 @@ var Machine = /** @class */ (function () {
                 labels[label] = lineLocation;
                 parts.splice(0, 1);
             }
+            else if (index === null) {
+                // No instruction on line
+                _this.error = true;
+                _this.log("Syntax error: invalid instruction");
+            }
+            else if (index > 1) {
+                // Instruction should be first or second item
+                _this.error = true;
+                _this.log("Syntax error: unexpected identifier ");
+            }
             return parts;
         });
+        if (this.error)
+            return;
         // console.log({labels, cleaned})
         // Now each instruction has the opcode at [0] and operand at [1] or [2] (depending on addressing mode) so just need to combine
         // Instruction is abcc
@@ -243,8 +299,13 @@ var Machine = /** @class */ (function () {
             }
             // Determine if data references a label or not
             if (isNaN(Number(data))) {
+                // Does the label exist
                 if (labels[data] !== undefined) {
                     data = labels[data];
+                }
+                else if (data !== undefined) {
+                    _this.error = true;
+                    _this.log("Syntax error: label \"" + data + "\" does not exist");
                 }
                 else {
                     data = 0;
@@ -258,8 +319,11 @@ var Machine = /** @class */ (function () {
             }
         });
         // console.log(output)
-        this.memory = output;
-        this.log("Loaded to memory");
+        if (this.error === false) {
+            this.memory = output;
+            this.onMemoryChange();
+            this.log("Loaded to memory");
+        }
     };
     Machine.prototype.fetch = function () {
         this.log("\n------Fetching------");
@@ -432,21 +496,26 @@ var Machine = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        if (!!this.end) return [3 /*break*/, 4];
-                        this.fetch();
-                        return [4 /*yield*/, new Promise(function (resolve) { return setTimeout(resolve, _this.timeout); })];
+                        this.registers.pc.set(0);
+                        this.end = false;
+                        if (!(this.error === false)) return [3 /*break*/, 5];
+                        _a.label = 1;
                     case 1:
-                        _a.sent();
-                        this.decode();
+                        if (!!this.end) return [3 /*break*/, 5];
+                        this.fetch();
                         return [4 /*yield*/, new Promise(function (resolve) { return setTimeout(resolve, _this.timeout); })];
                     case 2:
                         _a.sent();
-                        this.execute();
+                        this.decode();
                         return [4 /*yield*/, new Promise(function (resolve) { return setTimeout(resolve, _this.timeout); })];
                     case 3:
                         _a.sent();
-                        return [3 /*break*/, 0];
-                    case 4: return [2 /*return*/];
+                        this.execute();
+                        return [4 /*yield*/, new Promise(function (resolve) { return setTimeout(resolve, _this.timeout); })];
+                    case 4:
+                        _a.sent();
+                        return [3 /*break*/, 1];
+                    case 5: return [2 /*return*/];
                 }
             });
         });
