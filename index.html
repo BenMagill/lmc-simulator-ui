@@ -9,18 +9,49 @@
     
 </head>
 <body>
-    <div>
-        <textarea name="code" id="code" cols="30" rows="10"></textarea>
-        <button id="load">Load</button>
-    </div>
+    <div style="display: inline-flex;">
+        <div style="margin-right: 20px;">
+            <p>Code</p>
+            <textarea name="code" id="code" cols="30" rows="25"></textarea>
+            <br>
+            <button id="load">Load</button>
+            <button id="run">Run</button>
+        </div>
 
-    <div>
-        <p>Output</p>
-        <div id="output">
-    
-    
+        <div style="margin-right: 20px;">
+            <p>Registers</p>
+            <div id="acc" class="register"></div>
+            <div id="pc" class="register"></div>
+            <div id="mar" class="register"></div>
+            <div id="mdr" class="register"></div>
+            <div id="cir" class="register"></div>
+        </div>
+        
+        <div>
+            <p>Memory</p>
+            <div id="memory">
+                
+            </div>
         </div>
     </div>
+
+    <div id="ioContainer">
+        <div>
+            <p>Input</p>
+            <div id="input">
+        
+        
+            </div>
+        </div>
+        <div>
+            <p>Output</p>
+            <div id="output">
+        
+        
+            </div>
+        </div>
+    </div>
+    
 
     <div>
         <p>Log</p>
@@ -30,12 +61,7 @@
         </div>
     </div>
 
-    <div>
-        <p>Memory</p>
-        <div id="memory">
-            
-        </div>
-    </div>
+
     <script src="static/bundle.js"></script>
 </body>
 </html>

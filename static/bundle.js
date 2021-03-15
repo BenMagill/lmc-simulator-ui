@@ -1,8 +1,14 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
-var Machine = require("lmc-simulator/lib/index")
+var Machine = require("lmc-simulator")
 
 var machine = new Machine({
-    onInput: function(text){return prompt(text)}, 
+    onInput: function(text){
+        var result =  prompt(text)
+        var textElem = document.createElement("p")
+        textElem.innerText = result
+        document.getElementById("input").appendChild(textElem)
+        return result
+    }, 
     timeout: 1,
     onOutput: function(text){
         var node = document.createElement("p")
@@ -16,6 +22,12 @@ var machine = new Machine({
     },
     onMemoryChange: function(){
         updateMemory(machine.memory)
+    },
+    onRegisterChange: function(i){
+        var register = document.getElementById(i.register)
+        console.log({register, value: i.value})
+
+        register.getElementsByClassName("registerValue")[0].innerText = i.value
     }
 
 })
@@ -24,10 +36,14 @@ document.getElementById("load").addEventListener("click", function(e){
     machine.loadToRAM(document.getElementById("code").value)
     console.log(machine.memory)
     console.log(machine)
+})
+
+document.getElementById("run").addEventListener("click", function(){
     machine.run()
 })
 
 function updateMemory(data) {
+    console.log(data)
     var mem = document.getElementById("memory")
     mem.innerHTML = ""
     for (let i = 0; i < 100; i++) {
@@ -45,9 +61,23 @@ function updateMemory(data) {
         memLocation.appendChild(memVal)
         mem.appendChild(memLocation)
     }
-
 }
 
+// Initialise
+updateMemory([])
+
+var registers = document.getElementsByClassName("register")
+for (let i = 0; i < registers.length; i++) {
+    const registerElem = registers[i];
+    var registerName = document.createElement("p")
+    registerName.className = "registerName"
+    registerName.innerText = registerElem.id.toUpperCase()
+    var value = document.createElement("p")
+    value.className = "registerValue"
+    value.innerText = 0
+    registerElem.appendChild(registerName)
+    registerElem.appendChild(value)
+}
 // var testInp = `
 //         INP
 // loop    OUT   
@@ -77,12 +107,9 @@ function updateMemory(data) {
 // }
 
 // b()
-},{"lmc-simulator/lib/index":2}],2:[function(require,module,exports){
+},{"lmc-simulator":2}],2:[function(require,module,exports){
 "use strict";
-/**
- *
- *
- */
+// var opcodes = ["HLT", "ADD", "SUB", "STA", "LDA", "BRA", "BRZ", "BRP", "INP", "OUT", "DAT"]
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -119,7 +146,6 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-// var opcodes = ["HLT", "ADD", "SUB", "STA", "LDA", "BRA", "BRZ", "BRP", "INP", "OUT", "DAT"]
 // const simulate = (code: string) => {
 //     var memory = parse(code)
 //     console.log(memory)
@@ -130,6 +156,10 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 // }
 // getUserInput("please", console.log)
 var Machine = /** @class */ (function () {
+    /**
+     *
+     * @param options
+     */
     function Machine(options) {
         var _this = this;
         this.registers = {

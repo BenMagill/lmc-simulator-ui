@@ -1,7 +1,13 @@
-var Machine = require("lmc-simulator/lib/index")
+var Machine = require("lmc-simulator")
 
 var machine = new Machine({
-    onInput: function(text){return prompt(text)}, 
+    onInput: function(text){
+        var result =  prompt(text)
+        var textElem = document.createElement("p")
+        textElem.innerText = result
+        document.getElementById("input").appendChild(textElem)
+        return result
+    }, 
     timeout: 1,
     onOutput: function(text){
         var node = document.createElement("p")
@@ -15,6 +21,12 @@ var machine = new Machine({
     },
     onMemoryChange: function(){
         updateMemory(machine.memory)
+    },
+    onRegisterChange: function(i){
+        var register = document.getElementById(i.register)
+        console.log({register, value: i.value})
+
+        register.getElementsByClassName("registerValue")[0].innerText = i.value
     }
 
 })
@@ -23,10 +35,14 @@ document.getElementById("load").addEventListener("click", function(e){
     machine.loadToRAM(document.getElementById("code").value)
     console.log(machine.memory)
     console.log(machine)
+})
+
+document.getElementById("run").addEventListener("click", function(){
     machine.run()
 })
 
 function updateMemory(data) {
+    console.log(data)
     var mem = document.getElementById("memory")
     mem.innerHTML = ""
     for (let i = 0; i < 100; i++) {
@@ -44,9 +60,23 @@ function updateMemory(data) {
         memLocation.appendChild(memVal)
         mem.appendChild(memLocation)
     }
-
 }
 
+// Initialise
+updateMemory([])
+
+var registers = document.getElementsByClassName("register")
+for (let i = 0; i < registers.length; i++) {
+    const registerElem = registers[i];
+    var registerName = document.createElement("p")
+    registerName.className = "registerName"
+    registerName.innerText = registerElem.id.toUpperCase()
+    var value = document.createElement("p")
+    value.className = "registerValue"
+    value.innerText = 0
+    registerElem.appendChild(registerName)
+    registerElem.appendChild(value)
+}
 // var testInp = `
 //         INP
 // loop    OUT   
