@@ -1,7 +1,9 @@
 #logs {
     max-height: 300px;
     height: 300px;
+    width: 300px;
     overflow: scroll;
+    border: 1px black solid;
 }
 
 #output,#input {
