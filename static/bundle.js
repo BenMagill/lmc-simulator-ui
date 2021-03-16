@@ -109,7 +109,6 @@ for (let i = 0; i < registers.length; i++) {
 // b()
 },{"lmc-simulator":2}],2:[function(require,module,exports){
 "use strict";
-// var opcodes = ["HLT", "ADD", "SUB", "STA", "LDA", "BRA", "BRZ", "BRP", "INP", "OUT", "DAT"]
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -146,15 +145,6 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-// const simulate = (code: string) => {
-//     var memory = parse(code)
-//     console.log(memory)
-// }
-// simulate(testInp)
-// var getUserInput = (text: string) => {
-//     return require("readline-sync").question(`${text}: `)
-// }
-// getUserInput("please", console.log)
 var Machine = /** @class */ (function () {
     /**
      *
@@ -506,8 +496,14 @@ var Machine = /** @class */ (function () {
                 this.log("Command: Input");
                 // Get user input and store in ACC
                 // TODO add checks to if it is a number or not
-                var input = this.onInput("Input a number");
-                this.registers.acc.set(input);
+                var validInput = false;
+                var input = "";
+                while (validInput === false) {
+                    input = this.onInput("Input a number");
+                    if (isNaN(Number(input)) === false)
+                        validInput = true;
+                }
+                this.registers.acc.set(Number(input));
                 this.log("Settings ACC to " + input);
                 break;
             case 9:
