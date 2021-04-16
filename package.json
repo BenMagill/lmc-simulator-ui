@@ -1,0 +1,19 @@
+{
+  "name": "lmc-simulator-ui",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "browserify": "^17.0.0",
+    "lmc-simulator": "^1.4.0",
+    "watchify": "^4.0.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "watch": "watchify index.js -o static/bundle.js",
+    "build": "browserify index.js -o static/bundle.js"
+  },
+  "author": "",
+  "license": "ISC"
+}
